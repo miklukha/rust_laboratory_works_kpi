@@ -4,7 +4,7 @@ use std::rc::Rc;
 
 slint::include_modules!();
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 enum Operation {
     Add,
     Subtract,
@@ -48,11 +48,17 @@ impl Calculator {
     fn add_digit(&mut self, digit: &str) {
         if self.new_number {
             self.current_number = digit.to_string();
-            self.current_expression = digit.to_string();
+
+            if self.operation != Operation::None {
+                self.current_expression = format!("{} {}", self.current_expression, digit);
+            } else {
+                self.current_expression = digit.to_string();
+            }
+
             self.new_number = false;
         } else {
             self.current_number.push_str(digit);
-            self.current_expression.push_str(digit);
+            self.current_expression = format!("{}{}", self.current_expression, digit);
         }
     }
 
@@ -72,19 +78,23 @@ impl Calculator {
             Operation::None => current,
         };
 
-        let full_expression = format!(
-            "{} {} {} = {}",
-            self.stored_number,
-            match self.operation {
-                Operation::Add => "+",
-                Operation::Subtract => "-",
-                Operation::Multiply => "*",
-                Operation::Divide => "/",
-                Operation::None => "",
-            },
-            self.current_number,
-            result
-        );
+        let op_symbol = match self.operation {
+            Operation::Add => "+",
+            Operation::Subtract => "-",
+            Operation::Multiply => "*",
+            Operation::Divide => "/",
+            Operation::None => "",
+        };
+
+        let full_expression = if !op_symbol.is_empty() {
+            format!(
+                "{} {} {} = {}",
+                self.stored_number, op_symbol, self.current_number, result
+            )
+        } else {
+            self.current_number.clone()
+        };
+
         self.current_expression = full_expression.clone();
 
         result
@@ -109,7 +119,7 @@ fn main() -> Result<(), slint::PlatformError> {
     ui.on_number_clicked(move |number: SharedString| {
         let ui = ui_handle.unwrap();
         calc_clone.borrow_mut().add_digit(&number.to_string());
-        ui.set_result(calc_clone.borrow().current_number.clone().into());
+        ui.set_result(calc_clone.borrow().current_expression.clone().into());
     });
 
     let ui_handle = ui.as_weak();
@@ -118,8 +128,8 @@ fn main() -> Result<(), slint::PlatformError> {
         let ui = ui_handle.unwrap();
         let mut calc = calc_clone.borrow_mut();
         let result = calc.calculate();
+
         calc.stored_number = result;
-        calc.new_number = true;
         calc.operation = match op.as_str() {
             "+" => Operation::Add,
             "-" => Operation::Subtract,
@@ -127,7 +137,11 @@ fn main() -> Result<(), slint::PlatformError> {
             "/" => Operation::Divide,
             _ => Operation::None,
         };
-        ui.set_result(result.to_string().into());
+
+        calc.current_expression = format!("{} {}", result, op);
+        calc.new_number = true;
+
+        ui.set_result(calc.current_expression.clone().into());
     });
 
     let ui_handle = ui.as_weak();
