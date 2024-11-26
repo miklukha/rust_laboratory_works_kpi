@@ -1,0 +1,59 @@
+import { Button, VerticalBox, HorizontalBox, TextEdit } from "std-widgets.slint";
+
+export component AppWindow inherits Window {
+    in-out property <string> result: "0";
+    in-out property <string> memory: "";
+
+    callback number-clicked(string);
+    callback operation-clicked(string);
+    callback command-clicked(string);
+
+    VerticalBox {
+        spacing: 10px;
+
+        TextEdit {
+            text: root.result;
+            font-size: 24px;
+            enabled: false;
+        }
+
+        TextEdit {
+            text: root.memory;
+            font-size: 16px;
+            enabled: false;
+            height: 150px;
+        }
+
+        HorizontalBox {
+            spacing: 5px;
+            for operation in ["+", "-", "*", "/"] : Button {
+                text: operation;
+                clicked => { root.operation-clicked(operation); }
+            }
+        }
+
+        for row in [["7", "8", "9"], ["4", "5", "6"], ["1", "2", "3"], ["0", "."]] : HorizontalBox {
+            spacing: 5px;
+            for number in row : Button {
+                text: number;
+                clicked => { root.number-clicked(number); }
+            }
+        }
+
+        HorizontalBox {
+            spacing: 5px;
+            Button {
+                text: "C";
+                clicked => { root.command-clicked("clear"); }
+            }
+            Button {
+                text: "Save";
+                clicked => { root.command-clicked("save"); }
+            }
+            Button {
+                text: "=";
+                clicked => { root.command-clicked("equals"); }
+            }
+        }
+    }
+}
