@@ -1,22 +1,32 @@
-// Prevent console window in addition to Slint window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+use std::env;
 
-use std::error::Error;
+use slint::ComponentHandle;
 
-slint::include_modules!();
+use lib::functions_lib::{
+    callback_declare_dump_list_items, callback_declare_edit_list_item,
+    callback_declare_load_list_items, callback_declare_pop_list_item,
+    callback_declare_put_list_item,
+};
+use lib::{AppConfig, AppWindow};
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let ui = AppWindow::new()?;
+fn main() -> Result<(), slint::PlatformError> {
+    let app = AppWindow::new()?;
 
-    ui.on_request_increase_value({
-        let ui_handle = ui.as_weak();
-        move || {
-            let ui = ui_handle.unwrap();
-            ui.set_counter(ui.get_counter() + 1);
-        }
-    });
+    let mut args = env::args();
+    args.next();
 
-    ui.run()?;
+    let cfg = app.global::<AppConfig>();
+    let pth = args
+        .next()
+        .unwrap_or_else(|| cfg.get_data_path().into())
+        .into();
+    cfg.set_data_path(pth);
 
-    Ok(())
+    callback_declare_dump_list_items(&app);
+    callback_declare_load_list_items(&app);
+    callback_declare_put_list_item(&app);
+    callback_declare_pop_list_item(&app);
+    callback_declare_edit_list_item(&app);
+
+    app.run()
 }

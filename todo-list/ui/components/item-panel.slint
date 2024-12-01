@@ -1,0 +1,41 @@
+import { AppConfig } from "../global.slint";
+import { ScrollView } from "std-widgets.slint";
+import { ListItemPanel } from "list-item-panel.slint";
+
+export component ItemPanel inherits Rectangle {
+    background: AppConfig.color_primary.darker(20%);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    min-height: 140px;
+    min-width: 140px;
+
+    ScrollView {
+        padding: 3px;
+        height: 100%;
+        width: 100%;
+
+        viewport-height: (AppConfig.list-items.length * 112px) + 10px;
+        viewport-width: self.width;
+
+        VerticalLayout {
+            width: parent.width;
+            spacing: 5px;
+
+            for list-item[i] in AppConfig.list-items: ListItemPanel {
+                width: parent.width * 0.96;
+                completed: list-item.completed;
+                description: list-item.description;
+                datetime: list-item.datetime;
+                id: i;
+            }
+        }
+    }
+
+    Text {
+        visible: AppConfig.list-items.length < 1;
+        color: AppConfig.color_secondary;
+        text: "Поки ще не має справ...";
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+}

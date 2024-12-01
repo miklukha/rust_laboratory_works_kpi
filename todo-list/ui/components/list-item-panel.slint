@@ -1,0 +1,130 @@
+import { Button, CheckBox, HorizontalBox, VerticalBox } from "std-widgets.slint";
+import { AppConfig, AppLogic } from "../global.slint";
+
+export component ListItemPanel inherits Rectangle {
+    in-out property <bool> completed;
+    in property <string> description;
+    in property <string> datetime;
+    in property <int> id;
+    in-out property <bool> is-editing;
+    
+    private property <string> edit-text: description;
+
+    padding: 5px;
+
+    Rectangle {
+        height: 92%;
+        background: AppConfig.color_primary.darker(37%);
+        border-radius: 5px;
+        border-color: AppConfig.color_tertiary;
+        border-width: 1px;
+        drop-shadow-blur: touch-area.has-hover ? 10px : 3px;
+        drop-shadow-color: touch-area.has-hover ? AppConfig.color_primary.darker(87%) : AppConfig.color_primary.darker(50%);
+        drop-shadow-offset-y: touch-area.has-hover ? 5px : 1px;
+        animate drop-shadow-blur {
+            duration: 100ms;
+            easing: ease-out;
+        }
+
+        touch-area := TouchArea { }
+
+        HorizontalBox {
+            CheckBox {
+                checked <=> completed;
+                toggled => {
+                    AppConfig.list_items[id].completed = completed;
+                    AppLogic.dump_list_items();
+                }
+            }
+
+            VerticalBox {
+                spacing: 8px;
+
+                if is-editing:
+                    input := TextInput {
+                        text <=> edit-text;
+                        font-size: AppConfig.font-size;
+                        color: AppConfig.color_secondary;
+                    }
+                if !is-editing:
+                    Text {
+                        text: description;
+                        font-size: AppConfig.font-size;
+                        color: AppConfig.color_secondary;
+                        horizontal-alignment: left;
+                        vertical-alignment: center;
+                        overflow: elide;
+
+                        // Tooltip
+                        // popup := PopupWindow {
+                        //     Rectangle {
+                        //         height: root.height;
+                        //         width: root.width;
+                        //         background: black;
+                        //         border-radius: 8px;
+                        //         x: -58px;
+                        //         y: 30px;
+                        //         Text {
+                        //             height: parent.height;
+                        //             width: parent.width;
+                        //             vertical-alignment: center;
+                        //             horizontal-alignment: center;
+                        //             wrap: word-wrap;
+                        //             color: white;
+                        //             text: description;
+                        //         }
+                        //     }
+                        // }
+
+                        // tooltip := TouchArea {
+                        //     height: 100%;
+                        //     width: 100%;
+                        //     double-clicked => {
+                        //         popup.show();
+                        //     }
+                        // }
+                    }
+
+                Text {
+                    text: datetime;
+                    font-size: 10px;
+                    font-weight: 500;
+                    color: chartreuse;
+                    horizontal-alignment: left;
+                    vertical-alignment: center;
+                }
+            }
+
+            VerticalBox {
+                width: parent.width * 14%;
+
+                Button {
+                    icon: is-editing 
+                        ? @image-url("../../assets/save.png") 
+                        : @image-url("../../assets/edit.svg");
+                    clicked => {
+                        if (is-editing) {
+                            AppLogic.edit_list_item(id, {
+                                completed: completed,
+                                description: edit-text,
+                                datetime: datetime
+                            });
+                            is-editing = false;
+                            AppLogic.dump-list-items();
+                        } else {
+                            is-editing = true;
+                        }
+                    }
+                }
+
+                Button {
+                    icon: @image-url("../../assets/delete.svg");
+                    clicked => {
+                        AppLogic.pop_list_item(id);
+                        AppLogic.dump_list_items();
+                    }
+                }
+            }
+        }
+    }
+}
