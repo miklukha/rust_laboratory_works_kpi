@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Вхід</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <form id="login-form">
+      <h2>Вхід</h2>
+      <input
+        type="text"
+        id="username"
+        placeholder="Ім'я користувача"
+        required
+      />
+      <input type="password" id="password" placeholder="Пароль" required />
+      <button type="submit">Увійти</button>
+      <p>
+        Немає облікового запису?
+        <a href="/register.html">Зареєструватися</a>
+      </p>
+    </form>
+    <script src="login.js"></script>
+  </body>
+</html>

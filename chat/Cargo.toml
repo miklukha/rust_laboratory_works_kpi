@@ -1,0 +1,15 @@
+[package]
+name = "chat"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+warp = "0.3"
+tokio = { version = "1", features = ["full"] }
+futures-util = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+jsonwebtoken = "8"
+chrono = { version = "0.4", features = ["serde"] }
+bcrypt = "0.11"  # Для хешування паролів
+lazy_static = "1.4"
