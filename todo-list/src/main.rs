@@ -4,6 +4,7 @@ use slint::ComponentHandle;
 
 use lib::functions_lib::{
     callback_declare_dump_list_items, callback_declare_edit_list_item,
+    callback_declare_export_list_items, callback_declare_import_list_items,
     callback_declare_load_list_items, callback_declare_pop_list_item,
     callback_declare_put_list_item,
 };
@@ -27,6 +28,8 @@ fn main() -> Result<(), slint::PlatformError> {
     callback_declare_put_list_item(&app);
     callback_declare_pop_list_item(&app);
     callback_declare_edit_list_item(&app);
+    callback_declare_export_list_items(&app);
+    callback_declare_import_list_items(&app);
 
     app.run()
 }

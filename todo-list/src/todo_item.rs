@@ -4,9 +4,9 @@ use crate::ListItem;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ListItemData {
-    completed: bool,
-    description: String,
-    datetime: String,
+    pub completed: bool,
+    pub description: String,
+    pub datetime: String,
 }
 
 impl From<ListItemData> for ListItem {

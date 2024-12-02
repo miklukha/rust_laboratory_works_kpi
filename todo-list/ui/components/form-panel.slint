@@ -27,36 +27,6 @@ export component FormPanel inherits Rectangle {
                     }
                 }
             }
-
-            // // Tooltip
-            // Rectangle {
-            //     height: 15px;
-            //     width: 15px;
-
-            //     popup := PopupWindow {
-            //         Rectangle {
-            //             background: #2C2A4A;
-            //             height: 20px;
-            //             width: 80px;
-            //             border-radius: 4px;
-            //             x: 5px;
-            //             y: -30px;
-
-            //             Text {
-            //                 color: white;
-            //                 text: "Додати";
-            //             }
-            //         }
-            //     }
-
-            //     touch_area := TouchArea {
-            //         height: 100%;
-            //         width: 100%;
-            //         pointer-event => {
-            //             popup.show();
-            //         }
-            //     }
-            // }
         }
 
         txt_desc := Rectangle {
@@ -84,6 +54,21 @@ export component FormPanel inherits Rectangle {
                 vertical-alignment: center;
                 visible: input.text == "";
                 x: parent.x - 50px;
+            }
+        }
+        
+        HorizontalBox {
+            Button {
+                text: "Експорт";
+                clicked => {
+                    AppLogic.export_list_items();
+                }
+            }
+            Button {
+                text: "Імпорт";
+                clicked => {
+                    AppLogic.import_list_items();
+                }
             }
         }
     }

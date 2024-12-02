@@ -1,3 +1,4 @@
+use rfd::FileDialog;
 use std::fs;
 
 use chrono::{DateTime, Local};
@@ -125,3 +126,169 @@ pub fn callback_declare_edit_list_item(app: &AppWindow) {
         }
     });
 }
+
+pub fn callback_declare_export_list_items(app: &AppWindow) {
+    let logic = app.global::<AppLogic>();
+
+    let weak_app = app.as_weak();
+    logic.on_export_list_items(move || {
+        let app = weak_app.upgrade().unwrap();
+        let cfg = app.global::<AppConfig>();
+
+        if let Some(path) = FileDialog::new()
+            .set_title("Експорт списку справ")
+            .add_filter("Text Files", &["txt"]) // Змінено на .txt
+            .save_file()
+        {
+            let items: Vec<ListItemData> =
+                cfg.get_list_items().iter().map(|li| li.into()).collect();
+
+            // Перетворення в текстовий формат
+            let items_text = items
+                .iter()
+                .map(|item| {
+                    format!(
+                        "зроблено: {}, справа: {}, дата: {}",
+                        item.completed,
+                        item.description.replace(',', "\\,"),
+                        item.datetime
+                    )
+                })
+                .collect::<Vec<String>>()
+                .join("\n");
+
+            // Зберігаємо файл
+            fs::write(&path, items_text)
+                .map_err(|err| eprintln!("Помилка експорту: {err:?}"))
+                .unwrap_or_default();
+        }
+    });
+}
+
+pub fn callback_declare_import_list_items(app: &AppWindow) {
+    let logic = app.global::<AppLogic>();
+
+    let weak_app = app.as_weak();
+    logic.on_import_list_items(move || {
+        let app = weak_app.upgrade().unwrap();
+        let cfg = app.global::<AppConfig>();
+
+        if let Some(path) = FileDialog::new()
+            .set_title("Імпорт списку справ")
+            .add_filter("Text Files", &["txt"]) // Змінено на .txt
+            .pick_file()
+        {
+            let data = fs::read_to_string(&path)
+                .map_err(|err| eprintln!("Помилка читання файлу: {err:?}"))
+                .unwrap_or_default();
+
+            if data.is_empty() {
+                return;
+            }
+
+            // Парсинг текстового файлу
+            let items: Vec<ListItem> = data
+                .lines()
+                .filter_map(|line| {
+                    let completed_match = line.contains("зроблено: true");
+                    let description_match =
+                        line.split("справа: ").nth(1)?.split(", дата:").next()?;
+                    let datetime_match = line.split("дата: ").nth(1);
+
+                    Some(ListItem {
+                        completed: completed_match,
+                        description: description_match.replace("\\,", ",").into(),
+                        datetime: datetime_match?.to_string().into(),
+                    })
+                })
+                .collect();
+
+            let items_model = std::rc::Rc::new(slint::VecModel::from(items));
+            cfg.set_list_items(items_model.into());
+
+            // Зберігаємо в основний файл даних
+            let item_buf = rmps::to_vec(
+                &cfg.get_list_items()
+                    .iter()
+                    .map(|li| li.into())
+                    .collect::<Vec<ListItemData>>(),
+            )
+            .unwrap();
+            fs::write(cfg.get_data_path().as_str().resolve(), item_buf)
+                .map_err(|err| eprintln!("Помилка збереження: {err:?}"))
+                .unwrap_or_default();
+        }
+    });
+}
+
+// pub fn callback_declare_export_list_items(app: &AppWindow) {
+//     let logic = app.global::<AppLogic>();
+
+//     let weak_app = app.as_weak();
+//     logic.on_export_list_items(move || {
+//         let app = weak_app.upgrade().unwrap();
+//         let cfg = app.global::<AppConfig>();
+
+//         // Вибираємо файл для експорту
+//         if let Some(path) = FileDialog::new()
+//             .set_title("Експорт списку справ")
+//             .add_filter("MessagePack Files", &["mpack"])
+//             .save_file()
+//         {
+//             let items: Vec<ListItemData> =
+//                 cfg.get_list_items().iter().map(|li| li.into()).collect();
+//             let item_buf = rmps::to_vec(&items).unwrap();
+
+//             // Зберігаємо файл
+//             fs::write(&path, item_buf)
+//                 .map_err(|err| eprintln!("Помилка експорту: {err:?}"))
+//                 .unwrap_or_default();
+//         }
+//     });
+// }
+
+// pub fn callback_declare_import_list_items(app: &AppWindow) {
+//     let logic = app.global::<AppLogic>();
+
+//     let weak_app = app.as_weak();
+//     logic.on_import_list_items(move || {
+//         let app = weak_app.upgrade().unwrap();
+//         let cfg = app.global::<AppConfig>();
+
+//         // Вибираємо файл для імпорту
+//         if let Some(path) = FileDialog::new()
+//             .set_title("Імпорт списку справ")
+//             .add_filter("MessagePack Files", &["mpack"])
+//             .pick_file()
+//         {
+//             let data: Vec<u8> = fs::read(&path)
+//                 .map_err(|err| eprintln!("Помилка читання файлу: {err:?}"))
+//                 .unwrap_or_default();
+
+//             if data.is_empty() {
+//                 return;
+//             }
+
+//             let items: Vec<ListItem> = rmps::from_slice::<Vec<ListItemData>>(&data)
+//                 .unwrap()
+//                 .iter()
+//                 .map(|li| li.to_owned().into())
+//                 .collect();
+
+//             let items_model = std::rc::Rc::new(slint::VecModel::from(items));
+//             cfg.set_list_items(items_model.into());
+
+//             // Одразу зберігаємо імпортовані дані
+//             let item_buf = rmps::to_vec(
+//                 &cfg.get_list_items()
+//                     .iter()
+//                     .map(|li| li.into())
+//                     .collect::<Vec<ListItemData>>(),
+//             )
+//             .unwrap();
+//             fs::write(cfg.get_data_path().as_str().resolve(), item_buf)
+//                 .map_err(|err| eprintln!("Помилка збереження: {err:?}"))
+//                 .unwrap_or_default();
+//         }
+//     });
+// }

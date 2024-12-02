@@ -13,6 +13,7 @@ export component ListItemPanel inherits Rectangle {
     padding: 5px;
 
     Rectangle {
+        x: 10px;
         height: 92%;
         background: AppConfig.color_primary.darker(37%);
         border-radius: 5px;
@@ -54,35 +55,6 @@ export component ListItemPanel inherits Rectangle {
                         horizontal-alignment: left;
                         vertical-alignment: center;
                         overflow: elide;
-
-                        // Tooltip
-                        // popup := PopupWindow {
-                        //     Rectangle {
-                        //         height: root.height;
-                        //         width: root.width;
-                        //         background: black;
-                        //         border-radius: 8px;
-                        //         x: -58px;
-                        //         y: 30px;
-                        //         Text {
-                        //             height: parent.height;
-                        //             width: parent.width;
-                        //             vertical-alignment: center;
-                        //             horizontal-alignment: center;
-                        //             wrap: word-wrap;
-                        //             color: white;
-                        //             text: description;
-                        //         }
-                        //     }
-                        // }
-
-                        // tooltip := TouchArea {
-                        //     height: 100%;
-                        //     width: 100%;
-                        //     double-clicked => {
-                        //         popup.show();
-                        //     }
-                        // }
                     }
 
                 Text {
