@@ -1,0 +1,75 @@
+import { AppConfig, AppLogic } from "../global.slint";
+import { HorizontalBox, Button, VerticalBox } from "std-widgets.slint";
+
+export component FormPanel inherits Rectangle {
+    background: AppConfig.color_primary;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    height: AppConfig.font-size + (AppConfig.font-size * 300%);
+
+    todo_form := HorizontalBox {
+        Rectangle {
+            add_button := Button {
+                icon: @image-url("../../assets/add.svg");
+                enabled: txt_desc.text != "";
+                clicked => {
+                    if (txt_desc.text != "") {
+                        AppLogic.put_list_item(
+                            0,
+                            {
+                                completed: false,
+                                description: txt_desc.text,
+                                datetime: "",
+                            }
+                        );
+                        txt_desc.text = "";
+                        AppLogic.dump_list_items();
+                    }
+                }
+            }
+        }
+
+        txt_desc := Rectangle {
+            in-out property <string> text;
+            background: white;
+
+            border-radius: 5px;
+            border-color: AppConfig.color_tertiary;
+            border-width: 2px;
+
+            input := TextInput {
+                color: AppConfig.color_primary;
+                font-size: AppConfig.font-size;
+                padding-right: 20px;
+                text <=> parent.text;
+                vertical-alignment: center;
+
+                x: parent.x - 50px;
+                width: parent.width - 12px;
+            }
+
+            placeholder := Text {
+                color: AppConfig.color_primary;
+                text: "Нова справа";
+                vertical-alignment: center;
+                visible: input.text == "";
+                x: parent.x - 50px;
+            }
+        }
+        
+        HorizontalBox {
+            Button {
+                text: "Експорт";
+                clicked => {
+                    AppLogic.export_list_items();
+                }
+            }
+            Button {
+                text: "Імпорт";
+                clicked => {
+                    AppLogic.import_list_items();
+                }
+            }
+        }
+    }
+}
