@@ -143,7 +143,6 @@ pub fn callback_declare_export_list_items(app: &AppWindow) {
             let items: Vec<ListItemData> =
                 cfg.get_list_items().iter().map(|li| li.into()).collect();
 
-            // Перетворення в текстовий формат
             let items_text = items
                 .iter()
                 .map(|item| {
@@ -186,7 +185,6 @@ pub fn callback_declare_import_list_items(app: &AppWindow) {
                 return;
             }
 
-            // Парсинг текстового файлу
             let items: Vec<ListItem> = data
                 .lines()
                 .filter_map(|line| {
@@ -206,7 +204,6 @@ pub fn callback_declare_import_list_items(app: &AppWindow) {
             let items_model = std::rc::Rc::new(slint::VecModel::from(items));
             cfg.set_list_items(items_model.into());
 
-            // Зберігаємо в основний файл даних
             let item_buf = rmps::to_vec(
                 &cfg.get_list_items()
                     .iter()
@@ -220,75 +217,3 @@ pub fn callback_declare_import_list_items(app: &AppWindow) {
         }
     });
 }
-
-// pub fn callback_declare_export_list_items(app: &AppWindow) {
-//     let logic = app.global::<AppLogic>();
-
-//     let weak_app = app.as_weak();
-//     logic.on_export_list_items(move || {
-//         let app = weak_app.upgrade().unwrap();
-//         let cfg = app.global::<AppConfig>();
-
-//         // Вибираємо файл для експорту
-//         if let Some(path) = FileDialog::new()
-//             .set_title("Експорт списку справ")
-//             .add_filter("MessagePack Files", &["mpack"])
-//             .save_file()
-//         {
-//             let items: Vec<ListItemData> =
-//                 cfg.get_list_items().iter().map(|li| li.into()).collect();
-//             let item_buf = rmps::to_vec(&items).unwrap();
-
-//             // Зберігаємо файл
-//             fs::write(&path, item_buf)
-//                 .map_err(|err| eprintln!("Помилка експорту: {err:?}"))
-//                 .unwrap_or_default();
-//         }
-//     });
-// }
-
-// pub fn callback_declare_import_list_items(app: &AppWindow) {
-//     let logic = app.global::<AppLogic>();
-
-//     let weak_app = app.as_weak();
-//     logic.on_import_list_items(move || {
-//         let app = weak_app.upgrade().unwrap();
-//         let cfg = app.global::<AppConfig>();
-
-//         // Вибираємо файл для імпорту
-//         if let Some(path) = FileDialog::new()
-//             .set_title("Імпорт списку справ")
-//             .add_filter("MessagePack Files", &["mpack"])
-//             .pick_file()
-//         {
-//             let data: Vec<u8> = fs::read(&path)
-//                 .map_err(|err| eprintln!("Помилка читання файлу: {err:?}"))
-//                 .unwrap_or_default();
-
-//             if data.is_empty() {
-//                 return;
-//             }
-
-//             let items: Vec<ListItem> = rmps::from_slice::<Vec<ListItemData>>(&data)
-//                 .unwrap()
-//                 .iter()
-//                 .map(|li| li.to_owned().into())
-//                 .collect();
-
-//             let items_model = std::rc::Rc::new(slint::VecModel::from(items));
-//             cfg.set_list_items(items_model.into());
-
-//             // Одразу зберігаємо імпортовані дані
-//             let item_buf = rmps::to_vec(
-//                 &cfg.get_list_items()
-//                     .iter()
-//                     .map(|li| li.into())
-//                     .collect::<Vec<ListItemData>>(),
-//             )
-//             .unwrap();
-//             fs::write(cfg.get_data_path().as_str().resolve(), item_buf)
-//                 .map_err(|err| eprintln!("Помилка збереження: {err:?}"))
-//                 .unwrap_or_default();
-//         }
-//     });
-// }

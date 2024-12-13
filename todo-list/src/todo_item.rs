@@ -1,7 +1,8 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize}; // для читання та створення json
 
 use crate::ListItem;
 
+// оголошення структури
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ListItemData {
     pub completed: bool,
@@ -9,6 +10,7 @@ pub struct ListItemData {
     pub datetime: String,
 }
 
+// конверсія для узгодженості типів даних
 impl From<ListItemData> for ListItem {
     fn from(val: ListItemData) -> Self {
         ListItem {
