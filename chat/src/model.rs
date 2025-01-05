@@ -1,16 +1,13 @@
+use serde::{Deserialize, Serialize};
+
 #[derive(Deserialize)]
-pub struct LoginInfo {
-    pub username: String,
+pub struct CredsRequest {
+    pub email: String,
     pub password: String,
 }
 
 #[derive(Serialize)]
-pub struct LoginResponse {
-    pub token: String,
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct Claims {
-    pub sub: String,
-    pub exp: usize,
+pub struct Response {
+    pub message: String,
+    pub token: Option<String>,
 }

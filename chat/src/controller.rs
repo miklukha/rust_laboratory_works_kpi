@@ -1,11 +1,46 @@
-use axum::Json;
-use crate::model::{LoginInfo, LoginResponse};
+use axum::{Json, Extension};
+use axum::http::{header, StatusCode};
+use axum::response::IntoResponse;
+use firebase_auth_sdk::{Error, FireAuth};
+use crate::model::{CredsRequest, Response};
 
-pub async fn login_handler(Json(login_info) : Json<LoginInfo>)
--> Result<Json<LoginResponse>, StatusCode> {
-
+pub async fn sign_in(service: Extension<FireAuth>, Json(creds_request) : Json<CredsRequest>)
+-> impl IntoResponse {
+  match service.sign_in_email(creds_request.email.as_str(), creds_request.password.as_str(), true).await {
+     Ok(response) => {
+            let response_body = Response {
+                message: String::from("Successfully logged in"),
+                token: Some(response.id_token.clone()), // Додаємо токен у відповідь
+            };
+            (
+                StatusCode::OK,
+                Json(response_body),
+            )
+        }
+         Err(ex) => {
+            eprintln!("{:?}", ex);
+            let response_body = Response {
+                message: String::from("Invalid credentials"),
+                token: None, // Токен відсутній при помилці
+            };
+            (
+                StatusCode::UNAUTHORIZED,
+                Json(response_body),
+            )
+        }
+  }
 }
 
-pub async fn get_info_handler() -> Result<Json<String>, StatusCode> {
-
+pub async fn sign_up(service: Extension<FireAuth>, Json(creds_request) : Json<CredsRequest>) -> Result<Json<Response>, StatusCode> {
+  match service.sign_up_email(creds_request.email.as_str(), creds_request.password.as_str(), false).await {
+    Ok(_) => {
+        let msg = Response {message: String::from("Successfully registrated, please login...!"), token: None};
+        Ok(Json(msg))
+      
+    }
+    Err(ex) => {
+      eprintln!("{:?}", ex);
+      Err(StatusCode::BAD_REQUEST)
+    }
+  }
 }
