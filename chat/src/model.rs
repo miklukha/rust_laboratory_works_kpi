@@ -10,4 +10,6 @@ pub struct CredsRequest {
 pub struct Response {
     pub message: String,
     pub token: Option<String>,
+    pub id: Option<String>,
+    pub email: Option<String>,
 }

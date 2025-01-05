@@ -8,9 +8,12 @@ pub async fn sign_in(service: Extension<FireAuth>, Json(creds_request) : Json<Cr
 -> impl IntoResponse {
   match service.sign_in_email(creds_request.email.as_str(), creds_request.password.as_str(), true).await {
      Ok(response) => {
+            println!("{:?}",response);
             let response_body = Response {
                 message: String::from("Successfully logged in"),
-                token: Some(response.id_token.clone()), // Додаємо токен у відповідь
+                email: Some(response.email.clone()),
+                id: Some(response.local_id.clone()),
+                token: Some(response.id_token.clone()),
             };
             (
                 StatusCode::OK,
@@ -21,7 +24,9 @@ pub async fn sign_in(service: Extension<FireAuth>, Json(creds_request) : Json<Cr
             eprintln!("{:?}", ex);
             let response_body = Response {
                 message: String::from("Invalid credentials"),
-                token: None, // Токен відсутній при помилці
+                token: None,
+                id: None,
+                email: None
             };
             (
                 StatusCode::UNAUTHORIZED,
@@ -34,7 +39,7 @@ pub async fn sign_in(service: Extension<FireAuth>, Json(creds_request) : Json<Cr
 pub async fn sign_up(service: Extension<FireAuth>, Json(creds_request) : Json<CredsRequest>) -> Result<Json<Response>, StatusCode> {
   match service.sign_up_email(creds_request.email.as_str(), creds_request.password.as_str(), false).await {
     Ok(_) => {
-        let msg = Response {message: String::from("Successfully registrated, please login...!"), token: None};
+        let msg = Response {message: String::from("Successfully registrated, please login...!"), token: None, id: None, email: None};
         Ok(Json(msg))
       
     }

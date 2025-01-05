@@ -22,14 +22,19 @@
         >
           <div id="messages" style="height: 100%; overflow-y: auto;"></div>          
         </div>
-        <div class="input-group wrap">
+        <div class="input-group wrap mt-2" style="height: 44px;">
             <input
               type="text"
               id="input"
               class="form-control"
               placeholder="Введіть повідомлення..."
             />
-              <button id="send" type="button" class="btn btn-primary">Надіслати</button>
+             <div class="input-group-append">
+                <button id="send" type="button" class="btn btn-primary">
+                  Надіслати
+                </button>
+             </div>
+              <!-- <button id="send" type="button" class="btn btn-primary">Надіслати</button> -->
           </div>
     <script src="chat.js" defer></script>
   </body>

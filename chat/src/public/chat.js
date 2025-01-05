@@ -1,3 +1,99 @@
+const token = localStorage.getItem('token');
+const userId = localStorage.getItem('id');
+const email = localStorage.getItem('email');
+
+if (!token) {
+  window.location.href = 'index.html';
+}
+
+const socket = new WebSocket('ws://localhost:3000/ws');
+
+const userColors = {};
+const colorPalette = [
+  '#e6194b',
+  '#3cb44b',
+  '#ffe119',
+  '#4363d8',
+  '#f58231',
+  '#911eb4',
+  '#42d4f4',
+  '#f032e6',
+  '#bfef45',
+  '#fabebe',
+  '#469990',
+  '#dcbeff',
+];
+
+function getUserColor(userEmail) {
+  if (!userColors[userEmail]) {
+    const existingUsersCount = Object.keys(userColors).length;
+    const color = colorPalette[existingUsersCount % colorPalette.length];
+    userColors[userEmail] = color;
+  }
+  return userColors[userEmail];
+}
+
+socket.onopen = () => {
+  console.log('WebSocket connection established');
+};
+
+socket.onmessage = event => {
+  console.log('New message from server:', event.data);
+
+  const data = JSON.parse(event.data);
+
+  const messagesDiv = document.getElementById('messages');
+  const newMessageDiv = document.createElement('div');
+  newMessageDiv.classList.add('message');
+
+  const userDiv = document.createElement('div');
+  userDiv.classList.add('msg-email');
+  userDiv.style.color = getUserColor(data.email);
+  userDiv.textContent = data.email;
+
+  const msgSpan = document.createElement('div');
+  msgSpan.classList.add('msg-text');
+  msgSpan.textContent = data.message;
+
+  newMessageDiv.appendChild(userDiv);
+  newMessageDiv.appendChild(msgSpan);
+
+  if (data.email === email) {
+    newMessageDiv.classList.add('self');
+  } else {
+    newMessageDiv.classList.add('other');
+  }
+
+  messagesDiv.appendChild(newMessageDiv);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+};
+
+socket.onclose = () => {
+  console.log('WebSocket connection closed');
+};
+
+document.getElementById('send').addEventListener('click', () => {
+  const input = document.getElementById('input');
+  const text = input.value.trim();
+  if (text) {
+    const dataToSend = {
+      userId,
+      email,
+      message: text,
+    };
+
+    socket.send(JSON.stringify(dataToSend));
+    input.value = '';
+  }
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('id');
+  localStorage.removeItem('email');
+  window.location.href = 'index.html';
+});
+
 // // document.addEventListener('DOMContentLoaded', () => {
 // //   // Отримати токен і ім'я користувача з localStorage
 // //   const token = localStorage.getItem('token');

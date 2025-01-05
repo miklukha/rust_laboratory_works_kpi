@@ -8,7 +8,6 @@ document.getElementById('register-form').addEventListener('submit', async e => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
-  console.log(response);
 
   if (response.ok) {
     alert('Реєстрація успішна! Тепер ви можете увійти.');

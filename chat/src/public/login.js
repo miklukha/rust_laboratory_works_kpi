@@ -8,14 +8,13 @@ document.getElementById('login-form').addEventListener('submit', async e => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
-  console.log(response);
 
   if (response.ok) {
     const data = await response.json();
-    console.log(data);
-    // localStorage.setItem('token', data.token);
-    // localStorage.setItem('username', username);
-    // window.location.href = 'chat.html';
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('id', data.id);
+    localStorage.setItem('email', data.email);
+    window.location.href = 'chat.html';
   } else {
     const errorText = await response.text();
     alert(`Помилка входу: ${errorText}`);
