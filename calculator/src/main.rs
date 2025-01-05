@@ -1,4 +1,5 @@
-use slint::SharedString;
+use slint::SharedString; // дозволяє ефективно працювати зі строками
+                         // забезпечення спільного доступу до стану програми між різними частинами коду
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -29,6 +30,7 @@ struct Calculator {
 }
 
 impl Calculator {
+    // ініціалізація
     fn new() -> Self {
         Calculator {
             current_number: String::from("0"),
@@ -40,11 +42,13 @@ impl Calculator {
         }
     }
 
+    // обрізання певної к-сті після крапки
     fn round_to_decimals(value: f64, decimals: u32) -> f64 {
         let multiplier = 10_f64.powi(decimals as i32);
         (value * multiplier).round() / multiplier
     }
 
+    // додавання цифри
     fn add_digit(&mut self, digit: &str) {
         if self.new_number {
             self.current_number = digit.to_string();
@@ -62,6 +66,7 @@ impl Calculator {
         }
     }
 
+    // обчислення
     fn calculate(&mut self) -> f64 {
         let current = self.current_number.parse::<f64>().unwrap_or(0.0);
         let result = match self.operation {
@@ -78,6 +83,7 @@ impl Calculator {
             Operation::None => current,
         };
 
+        // отримання символу операції
         let op_symbol = match self.operation {
             Operation::Add => "+",
             Operation::Subtract => "-",
@@ -86,6 +92,7 @@ impl Calculator {
             Operation::None => "",
         };
 
+        // формування виразу
         let full_expression = if !op_symbol.is_empty() {
             format!(
                 "{} {} {} = {}",
@@ -100,6 +107,7 @@ impl Calculator {
         result
     }
 
+    // форматування виразів
     fn format_memory_history(&self) -> String {
         self.memory_history
             .iter()
