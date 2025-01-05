@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Вхід</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <form id="login-form" class="mx-auto" style="max-width: 400px">
+        <h2 class="text-center">Вхід</h2>
+        <div class="form-group">
+          <input
+            type="email"
+            id="email"
+            class="form-control"
+            placeholder="Email"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <input
+            type="password"
+            id="password"
+            class="form-control"
+            placeholder="Пароль"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Увійти</button>
+        <p class="text-center mt-3">
+          Немає облікового запису? <a href="register.html">Зареєструватися</a>
+        </p>
+      </form>
+    </div>
+    <script src="login.js"></script>
+  </body>
+</html>
