@@ -1,7 +1,7 @@
 use axum::{Json, Extension};
-use axum::http::{header, StatusCode};
+use axum::http::StatusCode;
 use axum::response::IntoResponse;
-use firebase_auth_sdk::{Error, FireAuth};
+use firebase_auth_sdk::FireAuth;
 use crate::model::{CredsRequest, Response};
 
 pub async fn sign_in(service: Extension<FireAuth>, Json(creds_request) : Json<CredsRequest>)
