@@ -6,7 +6,9 @@ use crate::model::{CredsRequest, Response};
 
 pub async fn sign_in(service: Extension<FireAuth>, Json(creds_request) : Json<CredsRequest>)
 -> impl IntoResponse {
+  // виклик методу аутентифікації 
   match service.sign_in_email(creds_request.email.as_str(), creds_request.password.as_str(), true).await {
+     // успішний вхід
      Ok(response) => {
             println!("{:?}",response);
             let response_body = Response {
@@ -20,6 +22,7 @@ pub async fn sign_in(service: Extension<FireAuth>, Json(creds_request) : Json<Cr
                 Json(response_body),
             )
         }
+        // помилка входу 
          Err(ex) => {
             eprintln!("{:?}", ex);
             let response_body = Response {
@@ -37,12 +40,15 @@ pub async fn sign_in(service: Extension<FireAuth>, Json(creds_request) : Json<Cr
 }
 
 pub async fn sign_up(service: Extension<FireAuth>, Json(creds_request) : Json<CredsRequest>) -> Result<Json<Response>, StatusCode> {
+  // виклик методу реєстрації через email і пароль
   match service.sign_up_email(creds_request.email.as_str(), creds_request.password.as_str(), false).await {
+    // успішна реєстрація
     Ok(_) => {
         let msg = Response {message: String::from("Successfully registrated, please login...!"), token: None, id: None, email: None};
         Ok(Json(msg))
       
     }
+    // помилка реєстрації
     Err(ex) => {
       eprintln!("{:?}", ex);
       Err(StatusCode::BAD_REQUEST)
